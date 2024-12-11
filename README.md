@@ -3,5 +3,5 @@
 - Run Server
 
 ```bash
-uvicorn main:app --reload
+python main.py
 ```
