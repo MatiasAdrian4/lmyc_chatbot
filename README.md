@@ -1,4 +1,4 @@
-# LMYC Chatbot
+# LMYC Chatbot
 
 - Run Server
 
