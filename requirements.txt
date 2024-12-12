@@ -1,3 +1,5 @@
 black==24.10.0
 fastapi==0.115.6
+pydantic-ai==0.0.12
+python-multipart==0.0.19
 uvicorn==0.32.1

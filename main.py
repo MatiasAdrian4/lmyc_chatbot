@@ -1,12 +1,11 @@
 import uvicorn
 from fastapi import FastAPI
 
+from routes import messages
+
 app = FastAPI()
 
-
-@app.get("/")
-def hello_world():
-    return {"message": "Hello World!"}
+app.include_router(messages.router, prefix="/messages", tags=["messages"])
 
 
 if __name__ == "__main__":
