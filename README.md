@@ -15,5 +15,5 @@ python main.py
 - Start a conversation
 
 ```bash
-curl -X POST http://127.0.0.1:8000/messages/ -F prompt="Hello"
+curl -X POST http://127.0.0.1:8000/messages/ -F prompt="Hola"
 ```
