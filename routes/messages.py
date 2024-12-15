@@ -30,21 +30,19 @@ async def post_message(prompt: Annotated[str, Form()]) -> StreamingResponse:
     async def stream_messages():
         """Streams new line delimited JSON `Message`s to the client."""
 
-        # stream the user prompt so that can be displayed straight away
         yield MessageTypeAdapter.dump_json(UserPrompt(content=prompt)) + b"\n"
 
-        # get the chat history so far to pass as context to the agent
+        # TODO: check if I really need previous messages or I can start a new
+        # conversation and delete the chat history. That can be based on the
+        # message's date or something similar.
+
         messages = list(database.get_messages())
 
-        # run the agent with the user prompt and the chat history
         async with agent.run_stream(prompt, message_history=messages) as result:
             async for text in result.stream(debounce_by=0.01):
-                # text here is a `str` and the frontend wants
-                # JSON encoded ModelTextResponse, so we create one
                 m = ModelTextResponse(content=text, timestamp=result.timestamp())
                 yield MessageTypeAdapter.dump_json(m) + b"\n"
 
-        # add new messages (e.g. the user prompt and the agent response in this case) to the database
         database.add_messages(result.new_messages_json())
 
     return StreamingResponse(stream_messages(), media_type="text/plain")
