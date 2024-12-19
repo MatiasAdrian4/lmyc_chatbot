@@ -1,5 +1,6 @@
 from typing import Annotated
 
+# from devtools import debug
 from fastapi import APIRouter, Form
 from fastapi.responses import Response, StreamingResponse
 from pydantic import TypeAdapter, Field
@@ -39,6 +40,7 @@ async def post_message(prompt: Annotated[str, Form()]) -> StreamingResponse:
         messages = list(database.get_messages())
 
         async with agent.run_stream(prompt, message_history=messages) as result:
+            # debug(result)
             async for text in result.stream(debounce_by=0.01):
                 m = ModelTextResponse(content=text, timestamp=result.timestamp())
                 yield MessageTypeAdapter.dump_json(m) + b"\n"
