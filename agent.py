@@ -2,12 +2,15 @@ from typing import List
 
 from pydantic import BaseModel
 from pydantic_ai import Agent
-from pydantic_ai.models.gemini import GeminiModel
+
+# from pydantic_ai.models.gemini import GeminiModel
+from pydantic_ai.models.groq import GroqModel
 
 from settings import GEMINI_API_KEY
 
 
-model = GeminiModel("gemini-1.5-flash", api_key=GEMINI_API_KEY)
+# model = GeminiModel("gemini-1.5-flash", api_key=GEMINI_API_KEY)
+model = GroqModel("llama-3.1-70b-versatile")
 agent = Agent(
     model,
     system_prompt=(
@@ -24,7 +27,7 @@ class Sale(BaseModel):
 
 
 @agent.tool_plain
-def get_sales() -> List[Sale]:
+def sales() -> List[Sale]:
     """Returns a list of sales"""
     sales_data = [
         {"id": 1, "description": "abc", "date": "31/08/2024"},
