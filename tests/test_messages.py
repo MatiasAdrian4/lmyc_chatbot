@@ -13,14 +13,24 @@ class TestMessages:
         database = setup_database
 
         user_message = {
-            "content": "Hello!",
-            "timestamp": "2024-12-12T00:00:00",
-            "role": "user",
+            "parts": [
+                {
+                    "content": "Hello!",
+                    "timestamp": "2024-12-20T21:57:11.489869Z",
+                    "part_kind": "user-prompt",
+                }
+            ],
+            "kind": "request",
         }
         model_message = {
-            "content": "Hello, how can I help you?",
-            "timestamp": "2024-12-12T00:00:00",
-            "role": "model-text-response",
+            "parts": [
+                {
+                    "content": "Hello, how can I help you?\n",
+                    "part_kind": "text",
+                }
+            ],
+            "timestamp": "2024-12-20T21:57:12.880159Z",
+            "kind": "response",
         }
         message_data = json.dumps([user_message, model_message]).encode("utf-8")
         database.add_messages(message_data)
@@ -37,12 +47,12 @@ class TestMessages:
             assert len(response_data) == 2
 
             assert response_data[0]["content"] == "Hello!"
-            assert response_data[0]["timestamp"] == "2024-12-12T00:00:00"
+            assert response_data[0]["timestamp"] == "2024-12-20T21:57:11.489869+00:00"
             assert response_data[0]["role"] == "user"
 
-            assert response_data[1]["content"] == "Hello, how can I help you?"
-            assert response_data[1]["timestamp"] == "2024-12-12T00:00:00"
-            assert response_data[1]["role"] == "model-text-response"
+            assert response_data[1]["content"] == "Hello, how can I help you?\n"
+            assert response_data[1]["timestamp"] == "2024-12-20T21:57:12.880159+00:00"
+            assert response_data[1]["role"] == "model"
 
     def test_post_message(self, setup_database):
         # TODO: implement

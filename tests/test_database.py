@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TestDatabase:
@@ -7,7 +7,7 @@ class TestDatabase:
     def test_add_messages(self, setup_database):
         database = setup_database
 
-        message_data = b'[{"content": "Hello!", "timestamp": "2024-12-12T00:00:00", "role": "user"}]'
+        message_data = b'[{"parts":[{"content":"Hello!","timestamp":"2024-12-20T21:57:11.489869Z","part_kind":"user-prompt"}],"kind":"request"}]'
         database.add_messages(message_data)
 
         with database.file.open("rb") as f:
@@ -20,14 +20,24 @@ class TestDatabase:
         database = setup_database
 
         user_message = {
-            "content": "Hello!",
-            "timestamp": "2024-12-12T00:00:00",
-            "role": "user",
+            "parts": [
+                {
+                    "content": "Hello!",
+                    "timestamp": "2024-12-20T21:57:11.489869Z",
+                    "part_kind": "user-prompt",
+                }
+            ],
+            "kind": "request",
         }
         model_message = {
-            "content": "Hello, how can I help you?",
-            "timestamp": "2024-12-12T00:00:00",
-            "role": "model-text-response",
+            "parts": [
+                {
+                    "content": "Hello, how can I help you?\n",
+                    "part_kind": "text",
+                }
+            ],
+            "timestamp": "2024-12-20T21:57:12.880159Z",
+            "kind": "response",
         }
         message_data = json.dumps([user_message, model_message]).encode("utf-8")
         database.add_messages(message_data)
@@ -36,10 +46,14 @@ class TestDatabase:
 
         assert len(retrieved_messages) == 2
 
-        assert retrieved_messages[0].content == "Hello!"
-        assert retrieved_messages[0].timestamp == datetime(2024, 12, 12, 0, 0)
-        assert retrieved_messages[0].role == "user"
+        assert retrieved_messages[0].parts[0].content == "Hello!"
+        assert retrieved_messages[0].parts[0].timestamp == datetime(
+            2024, 12, 20, 21, 57, 11, 489869, tzinfo=timezone.utc
+        )
+        assert retrieved_messages[0].parts[0].part_kind == "user-prompt"
 
-        assert retrieved_messages[1].content == "Hello, how can I help you?"
-        assert retrieved_messages[1].timestamp == datetime(2024, 12, 12, 0, 0)
-        assert retrieved_messages[1].role == "model-text-response"
+        assert retrieved_messages[1].parts[0].content == "Hello, how can I help you?\n"
+        assert retrieved_messages[1].timestamp == datetime(
+            2024, 12, 20, 21, 57, 12, 880159, tzinfo=timezone.utc
+        )
+        assert retrieved_messages[1].parts[0].part_kind == "text"

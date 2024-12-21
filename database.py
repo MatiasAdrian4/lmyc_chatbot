@@ -2,7 +2,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
-from pydantic_ai.messages import Message, MessagesTypeAdapter
+from pydantic_ai.messages import ModelMessage, ModelMessagesTypeAdapter
 
 THIS_DIR = Path(__file__).parent
 
@@ -17,12 +17,12 @@ class Database:
         with self.file.open("ab") as f:
             f.write(messages + b"\n")
 
-    def get_messages(self) -> Iterator[Message]:
+    def get_messages(self) -> Iterator[ModelMessage]:
         if self.file.exists():
             with self.file.open("rb") as f:
                 for line in f:
                     if line:
-                        yield from MessagesTypeAdapter.validate_json(line)
+                        yield from ModelMessagesTypeAdapter.validate_json(line)
 
 
 database = Database()
