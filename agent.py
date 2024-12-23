@@ -1,12 +1,11 @@
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
-from pydantic import BaseModel
 from pydantic_ai import Agent
 
 from pydantic_ai.models.groq import GroqModel
 
-from service.lmyc_client import MOCK_SALES
+from service.lmyc_client import Sale, LMYCClient
 from utils.date import date_to_str, str_to_date
 
 # model = GeminiModel("gemini-1.5-flash", api_key=GEMINI_API_KEY)
@@ -15,15 +14,10 @@ agent = Agent(
     model,
     system_prompt=(
         "Hola! Eres una asistente virtual que ayudara con cualquier tarea "
-        "relacionada con la app."
+        "relacionada con la app. Quiero que seas conciso con tus respuestas y proveas "
+        "informacion de ventas o fechas solo cuando se te pida."
     ),
 )
-
-
-class Sale(BaseModel):
-    id: int
-    description: str
-    date: str
 
 
 @agent.tool_plain
@@ -38,21 +32,20 @@ def current_date() -> str:
 
 
 @agent.tool_plain
-def sales(start_date: str, end_date: str) -> List[Sale]:
+def sales(start_date: str, end_date: str, category: Optional[str]) -> List[Sale]:
     """
     Returns a list of sales between start_date and end_date.
     Args:
         start_date (str): The start date in the format 'dd/mm/yyyy'.
         end_date (str): The end date in the format 'dd/mm/yyyy'.
+        category (Optional[str]): The category of the sale.
     Returns:
         List[Sale]: A list of Sale between the start and end dates.
     """
+    print(f"Sales tool called with {start_date}, {end_date} and {category}")
 
-    start = str_to_date(start_date)
-    end = str_to_date(end_date)
+    lmyc_client = LMYCClient()
 
-    sales_data = [
-        sale for sale in MOCK_SALES if start <= str_to_date(sale["date"]) <= end
-    ]
-
-    return [Sale(**data) for data in sales_data]
+    return lmyc_client.get_sales(
+        str_to_date(start_date), str_to_date(end_date), category
+    )
