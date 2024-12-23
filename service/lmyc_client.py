@@ -16,17 +16,20 @@ class Sale(BaseModel):
 
 class LMYCClient:
     def get_sales(
-        self, start_date: datetime, end_date: datetime, category: Optional[str]
+        self, start_date: str, end_date: str, category: Optional[str] = None
     ) -> List[Sale]:
         """
         Retrieve sales data within a specified date range and category.
         Args:
-            start_date (datetime): The start date of the sales period.
-            end_date (datetime): The end date of the sales period.
+            start_date (str): The start date of the sales period in the format 'dd/mm/yyyy'.
+            end_date (str): The end date of the sales period in the format 'dd/mm/yyyy'.
             category (Optional[str]): The category of sales to filter by.
         Returns:
             List[Sale]: A list of Sale objects that match the specified criteria.
         """
+
+        start_date = str_to_date(start_date)
+        end_date = str_to_date(end_date)
 
         sales_data = [
             sale

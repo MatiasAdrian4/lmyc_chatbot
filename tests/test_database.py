@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 
 
 class TestDatabase:
-
     def test_add_messages(self, setup_database):
         database = setup_database
 

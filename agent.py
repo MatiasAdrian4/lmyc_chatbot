@@ -32,7 +32,7 @@ def current_date() -> str:
 
 
 @agent.tool_plain
-def sales(start_date: str, end_date: str, category: Optional[str]) -> List[Sale]:
+def sales(start_date: str, end_date: str, category: Optional[str] = None) -> List[Sale]:
     """
     Returns a list of sales between start_date and end_date.
     Args:
@@ -46,6 +46,4 @@ def sales(start_date: str, end_date: str, category: Optional[str]) -> List[Sale]
 
     lmyc_client = LMYCClient()
 
-    return lmyc_client.get_sales(
-        str_to_date(start_date), str_to_date(end_date), category
-    )
+    return lmyc_client.get_sales(start_date, end_date, category)
