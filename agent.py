@@ -6,10 +6,11 @@ from pydantic_ai import Agent
 from pydantic_ai.models.groq import GroqModel
 
 from service.lmyc_client import Sale, LMYCClient
-from utils.date import date_to_str, str_to_date
+from settings import GROQ_API_KEY
+from utils.date import date_to_str
 
 # model = GeminiModel("gemini-1.5-flash", api_key=GEMINI_API_KEY)
-model = GroqModel("llama-3.1-70b-versatile")
+model = GroqModel("llama-3.1-70b-versatile", api_key=GROQ_API_KEY)
 agent = Agent(
     model,
     system_prompt=(
