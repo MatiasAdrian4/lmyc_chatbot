@@ -1,4 +1,5 @@
-from service.lmyc_client import LMYCClient, Sale
+from services.lmyc_client.models import Sale
+from services.lmyc_client.service import LMYCClient
 
 
 class TestLMYCClient:

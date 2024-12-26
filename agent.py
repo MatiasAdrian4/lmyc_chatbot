@@ -2,11 +2,12 @@ from typing import List, Optional
 from datetime import datetime
 
 from pydantic_ai import Agent
-
 from pydantic_ai.models.groq import GroqModel
 
-from service.lmyc_client import Sale, LMYCClient
 from settings import GROQ_API_KEY
+
+from services.lmyc_client.models import Client, Sale
+from services.lmyc_client.service import LMYCClient
 from utils.date import date_to_str
 
 # model = GeminiModel("gemini-1.5-flash", api_key=GEMINI_API_KEY)
@@ -30,6 +31,21 @@ def current_date() -> str:
     """
 
     return date_to_str(datetime.now())
+
+
+@agent.tool_plain
+def clients(name: str) -> List[Client]:
+    """
+    Retrieve a list of clients based on the provided name.
+    Args:
+        name (str): The name of the client to search for.
+    Returns:
+        List[Client]: A list of Client objects that match the provided name.
+    """
+    print(f"Clients tool called with {name}")
+
+    lmyc_client = LMYCClient()
+    return lmyc_client.get_clients(name)
 
 
 @agent.tool_plain

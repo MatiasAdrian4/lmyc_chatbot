@@ -1,9 +1,9 @@
 # LMYC Chatbot
 
-- Export Gemini API Key
+- Export Groq API Key
 
 ```bash
-export GEMINI_API_KEY="..."
+export GROQ_API_KEY="..."
 ```
 
 - Run Server

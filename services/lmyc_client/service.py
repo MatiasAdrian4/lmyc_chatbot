@@ -1,33 +1,27 @@
-from datetime import datetime
+import requests
 from typing import List, Optional
 
-from pydantic import BaseModel
-
+from settings import LUBRICENTRO_MYC_URL
+from services.lmyc_client.models import Sale, Client, to_client
 from tests.mocks.lmyc_client import MOCK_SALES
 from utils.date import str_to_date
 
 
-class Sale(BaseModel):
-    id: int
-    description: str
-    date: str
-    price: float
-
-
 class LMYCClient:
+    def get_clients(self, name: str) -> List[Client]:
+        response = requests.post(
+            f"{LUBRICENTRO_MYC_URL}/clients/",
+            json={"name": name},
+        )
+        if response.status_code == 200:
+            data = response.json()
+            return [to_client(client) for client in data.get("clients", [])]
+        else:
+            return []
+
     def get_sales(
         self, start_date: str, end_date: str, category: Optional[str] = None
     ) -> List[Sale]:
-        """
-        Retrieve sales data within a specified date range and category.
-        Args:
-            start_date (str): The start date of the sales period in the format 'dd/mm/yyyy'.
-            end_date (str): The end date of the sales period in the format 'dd/mm/yyyy'.
-            category (Optional[str]): The category of sales to filter by.
-        Returns:
-            List[Sale]: A list of Sale objects that match the specified criteria.
-        """
-
         start_date = str_to_date(start_date)
         end_date = str_to_date(end_date)
 
