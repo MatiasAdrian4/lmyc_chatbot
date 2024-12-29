@@ -15,9 +15,10 @@ model = GroqModel("llama-3.1-70b-versatile", api_key=GROQ_API_KEY)
 agent = Agent(
     model,
     system_prompt=(
-        "Hola! Eres una asistente virtual que ayudara con cualquier tarea "
-        "relacionada con la app. Quiero que seas conciso con tus respuestas y proveas "
-        "informacion de ventas o fechas solo cuando se te pida."
+        "Actúa como un asistente virtual para un lubricentro. Responde a las preguntas "
+        "de los usuarios de manera clara, específica y breve. No incluyas explicaciones "
+        "ni detalles adicionales a menos que te los soliciten explícitamente. Si el "
+        "usuario pregunta por cifras, proporciona únicamente el dato solicitado."
     ),
 )
 
@@ -42,25 +43,48 @@ def clients(name: str) -> List[Client]:
     Returns:
         List[Client]: A list of Client objects that match the provided name.
     """
-    print(f"Clients tool called with {name}")
+
+    print(f"clients tool called with {name}")
 
     lmyc_client = LMYCClient()
     return lmyc_client.get_clients(name)
 
 
-@agent.tool_plain
-def sales(start_date: str, end_date: str, category: Optional[str] = None) -> List[Sale]:
+@agent.tool_plain()
+def amount_of_sales(start_date: str, end_date: str) -> int:
     """
-    Returns a list of sales between start_date and end_date.
+    Calculate the amount of sales between two dates.
+
     Args:
-        start_date (str): The start date in the format 'dd/mm/yyyy'.
-        end_date (str): The end date in the format 'dd/mm/yyyy'.
-        category (Optional[str]): The category of the sale.
+        start_date (str): The start date in the format "dd/mm/yyyy".
+        end_date (str): The end date in the format "dd/mm/yyyy".
+
     Returns:
-        List[Sale]: A list of Sale between the start and end dates.
+        int: The number of sales between the start and end dates.
     """
-    print(f"Sales tool called with {start_date}, {end_date} and {category}")
+
+    print(f"amount_of_sales tool called with {start_date} and {end_date}")
 
     lmyc_client = LMYCClient()
+    sales_in_period = lmyc_client.get_sales(start_date, end_date)
+    return len(sales_in_period)
 
-    return lmyc_client.get_sales(start_date, end_date, category)
+
+@agent.tool_plain()
+def total_price_of_sales(start_date: str, end_date: str) -> float:
+    """
+    Calculate the total price of sales within a specified date range.
+
+    Args:
+        start_date (str): The start date of the period in "dd/mm/yyyy" format.
+        end_date (str): The end date of the period in "dd/mm/yyyy" format.
+
+    Returns:
+        float: The total price of all sales within the specified date range.
+    """
+
+    print(f"total_price_of_sales tool called with {start_date} and {end_date}")
+
+    lmyc_client = LMYCClient()
+    sales_in_period = lmyc_client.get_sales(start_date, end_date)
+    return sum(sale.price for sale in sales_in_period)

@@ -1,6 +1,8 @@
-from typing import Dict, Union
+from typing import Dict, Any
 
 from pydantic import BaseModel
+
+from utils.date import iso_str_date_to_date
 
 
 class Client(BaseModel):
@@ -14,7 +16,7 @@ class Client(BaseModel):
     email: str
 
 
-def to_client(data: Dict[str, Union[int, str]]) -> Client:
+def to_client(data: Dict[str, Any]) -> Client:
     """
     Converts a dictionary representing client data coming from
     "Lubricentro M&C" to a Client object.
@@ -33,6 +35,23 @@ def to_client(data: Dict[str, Union[int, str]]) -> Client:
 
 class Sale(BaseModel):
     id: int
-    description: str
-    date: str
+    quantity: float
     price: float
+    date: str
+    product_id: int
+    product_detail: str
+
+
+def to_sale(data: Dict[str, Any]) -> Sale:
+    """
+    Converts a dictionary representing sale data coming from
+    "Lubricentro M&C" to a Sale object.
+    """
+    return Sale(
+        id=data.get("id"),
+        quantity=data.get("cantidad"),
+        price=data.get("precio"),
+        date=iso_str_date_to_date(data.get("fecha")),
+        product_id=data.get("producto", {}).get("codigo"),
+        product_detail=data.get("producto", {}).get("detalle"),
+    )
