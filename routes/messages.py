@@ -85,3 +85,11 @@ async def post_message(prompt: Annotated[str, Form()]) -> StreamingResponse:
         database.add_messages(result.new_messages_json())
 
     return StreamingResponse(stream_messages(), media_type="text/plain")
+
+
+@router.delete("/")
+async def clear_messages() -> Response:
+    database.clear_messages()
+    return Response(
+        content="Message history has been deleted.", media_type="text/plain"
+    )

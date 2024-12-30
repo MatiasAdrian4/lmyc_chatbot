@@ -24,5 +24,9 @@ class Database:
                     if line:
                         yield from ModelMessagesTypeAdapter.validate_json(line)
 
+    def clear_messages(self):
+        if self.file.exists():
+            self.file.unlink()
+
 
 database = Database()
