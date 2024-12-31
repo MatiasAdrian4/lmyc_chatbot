@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timezone
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 # from devtools import debug
 from fastapi import APIRouter, Form
@@ -12,6 +12,9 @@ from pydantic_ai.messages import (
     ModelRequest,
     UserPromptPart,
     TextPart,
+    SystemPromptPart,
+    ToolCallPart,
+    ToolReturnPart,
 )
 from typing_extensions import TypedDict
 
@@ -29,8 +32,18 @@ class ChatMessage(TypedDict):
     content: str
 
 
-def to_chat_message(m: ModelMessage) -> ChatMessage:
+def to_chat_message(m: ModelMessage) -> Optional[ChatMessage]:
     first_part = m.parts[0]
+
+    # For newly created chats, the first part of the message is the system prompt.
+    # This should be excluded from the message history provided to the user.
+    if isinstance(first_part, SystemPromptPart):
+        first_part = m.parts[1]
+
+    # Tool uses should be excluded from the message history provided to the user.
+    if isinstance(first_part, ToolCallPart) or isinstance(first_part, ToolReturnPart):
+        return
+
     if isinstance(m, ModelRequest):
         if isinstance(first_part, UserPromptPart):
             return {
@@ -51,9 +64,12 @@ def to_chat_message(m: ModelMessage) -> ChatMessage:
 @router.get("/")
 async def get_messages() -> Response:
     messages = database.get_messages()
+
     return Response(
         b"\n".join(
-            json.dumps(to_chat_message(msg)).encode("utf-8") for msg in messages
+            json.dumps(chat_msg).encode("utf-8")
+            for msg in messages
+            if (chat_msg := to_chat_message(msg)) is not None
         ),
         media_type="text/plain",
     )
