@@ -35,7 +35,7 @@ def current_date() -> str:
 
 
 @agent.tool_plain
-def clients(name: str) -> List[Client]:
+def clients_by_name(name: str) -> List[Client]:
     """
     Retrieve a list of clients based on the provided name.
     Args:
